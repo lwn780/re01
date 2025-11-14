@@ -27,7 +27,7 @@ __global__ void transposeAddKernel(const float *A, const float *B, float *C, int
 
 
 int main() {
-    // === 输入矩阵 ===
+    // 输入矩阵 
     int N = 2; // A 的行数
     int M = 3; // A 的列数
 
@@ -41,27 +41,26 @@ int main() {
     // C = A^T + B
     float C[6];
 
-    // === 设备内存分配 ===
+    // 设备内存分配 
     float *d_A, *d_B, *d_C;
     cudaMalloc(&d_A, M * N * sizeof(float));
     cudaMalloc(&d_B, N * M * sizeof(float));
     cudaMalloc(&d_C, N * M * sizeof(float));
 
-    // === 拷贝数据到 GPU ===
+    // 拷贝数据到 GPU 
     cudaMemcpy(d_A, A, M * N * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, B, N * M * sizeof(float), cudaMemcpyHostToDevice);
 
-    // === 启动核函数 ===
+    //启动核函数 
     dim3 block(16, 16);
     dim3 grid((M + block.x - 1) / block.x, (N + block.y - 1) / block.y);
 
     transposeAddKernel<<<grid, block>>>(d_A, d_B, d_C, M, N);
     cudaDeviceSynchronize();
 
-    // === 拷贝结果回主机 ===
+    // 拷贝结果回主机
     cudaMemcpy(C, d_C, N * M * sizeof(float), cudaMemcpyDeviceToHost);
 
-    // === 打印结果 ===
     printf("Result C = A^T + B:\n");
     for (int i = 0; i < M; ++i) {
         for (int j = 0; j < N; ++j) {
@@ -70,7 +69,7 @@ int main() {
         printf("\n");
     }
 
-    // === 释放内存 ===
+
     cudaFree(d_A);
     cudaFree(d_B);
     cudaFree(d_C);
